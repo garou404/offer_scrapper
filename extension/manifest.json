@@ -3,7 +3,7 @@
     "name": "Reading Time",
     "version": "1.0",
     "description": "Add the reading time to chrome extension documenration articles",
-    "permissions": ["activeTab", "scripting"],
+    "permissions": ["activeTab", "scripting", "identity"],
     "action": {
         "default_icon": {
             "16": "images/icon-16.png",
@@ -14,6 +14,10 @@
     },
     "background":{
         "service_worker": "background.js"
+    },
+    "oauth2": {
+        "client_id":"969533725872-v07o8j2s886t7gqpnd859rgs5f57t53a.apps.googleusercontent.com",
+        "scopes": [""]
     }
 
 }

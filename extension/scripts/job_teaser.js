@@ -4,7 +4,7 @@ if(company) {
     const position = document.querySelector('p[data-testid="jobad-DetailView__Heading__title"]');
     console.log(company.innerHTML);
     console.log(location.innerHTML);
-    console.log(position.innerHTML);
+    // console.log(position.innerHTML);
 }
 
 
