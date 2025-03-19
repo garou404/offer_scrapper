@@ -1,0 +1,9 @@
+-oauth2 + extension tutorial: https://developer.chrome.com/docs/extensions/how-to/integrate/oauth
+-check storage: https://developer.chrome.com/docs/extensions/reference/api/storage
+-read and write data on google sheets: https://developers.google.com/sheets/api/guides/values?hl=fr
+-quickstart API google sheets: https://developers.google.com/sheets/api/quickstart/js?hl=fr
+
+# additional resources
+async await: https://fr.javascript.info/async-await
+promise: https://fr.javascript.info/promise-basics
+

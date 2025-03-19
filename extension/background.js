@@ -26,6 +26,7 @@ chrome.action.onClicked.addListener(async (tab) => {
 
 function getAuthToken() {
     chrome.identity.getAuthToken({interactive: true}, function(token) {
+        console.log(token);
         return token;
     });
 };
