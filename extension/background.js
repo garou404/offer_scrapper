@@ -46,12 +46,9 @@ async function fetchData(token) {
     
     let init = {
         method: 'GET',
-        // async: true,
         headers: {
             Authorization: 'Bearer ' + token,
-            // 'Content-Type': 'application/json'
         },
-        'contentType': 'application/x-www-form-urlencoded'
     };
     console.log("await fetch now, new contentType");
     const response = await fetch(
