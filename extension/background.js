@@ -54,21 +54,43 @@ async function fetchData(token) {
     );
     
     const result = await response.json();
-    addRow(result.values, "my_company", "software engineer developer director CEO", "Naves-Parmelan", token);    
+    result.values;
+    const data = sortValues(result.values);
+    // addRow(result.values, "my_company", "software engineer developer director CEO", "Naves-Parmelan", token);    
+}
+
+function sortValues(data){
+    const headers = data[0]; // ["Name", "Age", "City"]
+    const rows = data.slice(1); // Everything except headers
+    const objects = rows.map(row => 
+        Object.fromEntries(row.map((value, index) => [headers[index], value]))
+    );
+
+    const filtered_data = objects
+    .filter(obj => Object.keys(obj).length > 0)
+    .filter(obj => (obj.company != '') & (obj.job != '') & (obj.link != ''));
+
+    const sub_data = filtered_data.filter(x => x.sub == "TRUE").sort((a, b) => {
+        const [dayA, monthA] = a.app.split("/").map(Number);
+        const [dayB, monthB] = b.app.split("/").map(Number);
+        return new Date(2024, monthA - 1, dayA) - new Date(2024, monthB - 1, dayB);
+    });
+    const todo_data = filtered_data.filter(x => x.todo == "TRUE").sort((a, b) => {
+        const [dayA, monthA] = a.todo.split("/").map(Number);
+        const [dayB, monthB] = b.todo.split("/").map(Number);
+        return new Date(2024, monthB - 1, dayB) - new Date(2024, monthA - 1, dayA);
+    });
+    const dead_data = filtered_data.filter(x => x.dead == "TRUE");
+
+    return [...sub_data, ...todo_data, ...dead_data];
 }
 
 async function addRow(data, company, position, location, token) {
     console.log(data);
-    console.log(data.push(["test1", "test1", "test1", "test1"]));
-
-    // const headers = data[0]; // ["Name", "Age", "City"]
-    // const rows = data.slice(1); // Everything except headers
-
-    // const objects = rows.map(row => 
-    // Object.fromEntries(row.map((value, index) => [headers[index], value]))
-    // );
-
-    // console.log(objects);
+    const today = new Date();
+    const today_date = `${today.getDate()}/${today.getMonth() + 1}`;
+    
+    console.log(data.push(["", company, "", position, "FALSE", "FALSE", "TRUE", "", today_date, "", location]));
 
     const spreadsheetId = "1OeHySMPQ_8ny9XwoGzUA7m2lrDREE0IYolxbc1FxNqk";
     const sheetId = "crash_test";

@@ -1,3 +1,6 @@
+import { function_name } from "./googleSheets.js";
+
+
 (function() {
     let position = document.querySelector("div.t-24.job-details-jobs-unified-top-card__job-title");
     position = position.innerText;
