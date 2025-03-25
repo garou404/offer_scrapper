@@ -1,6 +1,3 @@
-import { function_name } from "./googleSheets.js";
-
-
 (function() {
     let position = document.querySelector("div.t-24.job-details-jobs-unified-top-card__job-title");
     position = position.innerText;
@@ -11,4 +8,12 @@ import { function_name } from "./googleSheets.js";
     console.log(company);
     console.log(location);
     console.log(position);
+    
+    chrome.runtime.sendMessage({ 
+        action: "send_scraped_data", 
+        data: {"company": company, "location": location, "position": position} 
+    }, response => {
+        console.log("Send scraped data (Linkedin):", response);
+    });
+
 })();
