@@ -18,8 +18,9 @@ async function fetchData() {
     let token = await getStoredToken();
   
     if (!token) {
-      token = await getAuthToken();
-      storeToken(token);
+        console.log("no stored token");
+        token = await getAuthToken();
+        storeToken(token);
     }
 
     const spreadsheetId = "1OeHySMPQ_8ny9XwoGzUA7m2lrDREE0IYolxbc1FxNqk";
@@ -38,15 +39,34 @@ async function fetchData() {
         init
     );
     
-    const result = await response.json();
-    return result.values;
-    // addRow(result.values, "my_company", "software engineer developer director CEO", "Naves-Parmelan", token);    
+    const res = await response.json();
+    console.log(res);
+    if(res.error){
+        if(res.error.code == 401 && res.error.status == "UNAUTHENTICATED"){
+            token = await getAuthToken();
+            storeToken(token);
+            const response = await fetch(
+                url+spreadsheetId+"/values/"+sheetId+range,
+                init
+            );
+            const res = await response.json();
+        }
+    }
+    return res.values;
 }
 
 // Function to filter and sort the objects 
 function sortValues(data){
-    const headers = data[0];
-    const rows = data.slice(1);
+    let headers;
+    let rows;
+    if(data[0][0] == "link"){
+        headers = data[0];
+        rows = data.slice(1);
+    }else{
+        headers = ["link", "company", "prio", "job", "sub", "dead", "todo", "app", "add", "apllication plateform", "location", "note"]
+        rows = data;
+    }
+    console.log(headers);
     const objects = rows.map(row => 
         Object.fromEntries(row.map((value, index) => [headers[index], value]))
     );
@@ -71,45 +91,46 @@ function sortValues(data){
 }
 
 // Function to add a row to the google sheet
-async function addRow(data, company, position, location, token) {
-    
+async function addRow(data, link, company, position, location) {
+    let token = await getStoredToken();
+  
+    if (!token) {
+      token = await getAuthToken();
+      storeToken(token);
+    }
+
     const today = new Date();
     const today_date = `${today.getDate()}/${today.getMonth() + 1}`;    
-    console.log(data.push(["", company, "", position, "FALSE", "FALSE", "TRUE", "", today_date, "", location]));
-
+    data.push([link, company, "", position, "FALSE", "FALSE", "TRUE", "", today_date, "", location, ""]);
     const new_data = sortValues(data);
-    console.log(new_data);
-
-
+    
     const headers = ["link", "company", "prio", "job", "sub", "dead", "todo", "app", "add", "apllication plateform", "location", "note"]
-    const values = new_data.map(obj => headers.map(header => obj[header]));
-    console.log(values);
-
+    const formatted_data = new_data.map(obj => headers.map(header => obj[header]));
 
     const spreadsheetId = "1OeHySMPQ_8ny9XwoGzUA7m2lrDREE0IYolxbc1FxNqk";
     const sheetId = "crash_test";
     const range = "!A:L";
     const url = "https://sheets.googleapis.com/v4/spreadsheets/"
     
-    // const body = {
-    //     values: data,
-    // };
-    // let init = {
-    //     method: 'PUT',
-    //     headers: {
-    //         Authorization: 'Bearer ' + token,
-    //         "Content-Type": "application/json"
-    //     },
-    //     body: JSON.stringify(body),
-    // };
+    const body = {
+        values: [headers, ...formatted_data],
+    };
+    let init = {
+        method: 'PUT',
+        headers: {
+            Authorization: 'Bearer ' + token,
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify(body),
+    };
 
-    // const response = await fetch(
-    //     url+spreadsheetId+"/values/"+sheetId+range+"?valueInputOption=USER_ENTERED",
-    //     init,
-    // );
+    const response = await fetch(
+        url+spreadsheetId+"/values/"+sheetId+range+"?valueInputOption=USER_ENTERED",
+        init,
+    );
     
-    // const result = await response.json();
-    // console.log(result);
+    const result = await response.json();
+    console.log(result);
 }
 
 
@@ -130,7 +151,7 @@ function getStoredToken() {
 
 
 
-export { fetchData };
+export { fetchData, addRow };
 
 
 // https://developers.google.com/sheets/api/reference/rest

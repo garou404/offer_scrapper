@@ -11,7 +11,7 @@
     
     chrome.runtime.sendMessage({ 
         action: "send_scraped_data", 
-        data: {"company": company, "location": location, "position": position} 
+        data: {"link": window.location.href, "company": company, "location": location, "position": position} 
     }, response => {
         console.log("Send scraped data (Linkedin):", response);
     });
