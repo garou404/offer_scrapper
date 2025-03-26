@@ -101,13 +101,14 @@ async function addRow(data, link, company, position, location) {
     const new_data = sortValues(data);
     
     const headers = ["link", "company", "prio", "job", "sub", "dead", "todo", "app", "add", "apllication plateform", "location", "note"]
-    const formatted_data = new_data.map(obj => headers.map(header => obj[header]));
+    const formatted_data = new_data.map(obj => headers.map(header => obj[header] ? obj[header] : ""));
 
     const spreadsheetId = "1OeHySMPQ_8ny9XwoGzUA7m2lrDREE0IYolxbc1FxNqk";
     const sheetId = "crash_test";
     const range = "!A:L";
     const url = "https://sheets.googleapis.com/v4/spreadsheets/"
     
+    console.log([headers, ...formatted_data]);
     const body = {
         values: [headers, ...formatted_data],
     };
