@@ -40,51 +40,47 @@ async function fetchData() {
     );
     
     const res = await response.json();
-    console.log(res);
-    if(res.error){
-        if(res.error.code == 401 && res.error.status == "UNAUTHENTICATED"){
-            token = await getAuthToken();
-            storeToken(token);
-            const response = await fetch(
-                url+spreadsheetId+"/values/"+sheetId+range,
-                init
-            );
-            const res = await response.json();
-        }
+    if(res.error?.code == 401 && res.error?.status == "UNAUTHENTICATED"){
+        token = await getAuthToken();
+        storeToken(token);
+        const response = await fetch(
+            url+spreadsheetId+"/values/"+sheetId+range,
+            init
+        );
+        const res = await response.json();
     }
+    console.log(`GET request ${res}`);
     return res.values;
 }
 
 // Function to filter and sort the objects 
 function sortValues(data){
-    let headers;
-    let rows;
-    if(data[0][0] == "link"){
-        headers = data[0];
-        rows = data.slice(1);
-    }else{
-        headers = ["link", "company", "prio", "job", "sub", "dead", "todo", "app", "add", "apllication plateform", "location", "note"]
-        rows = data;
-    }
-    console.log(headers);
+    let headers = ["link", "company", "prio", "job", "sub", "dead", "todo", "app", "add", "apllication plateform", "location", "note"]
+    // check if first line is header
+    let rows  = data[0][0] == "link" ? data.slice(1) : data;
+
     const objects = rows.map(row => 
         Object.fromEntries(row.map((value, index) => [headers[index], value]))
     );
 
+    // filter empty values
     const filtered_data = objects
     .filter(obj => Object.keys(obj).length > 0)
     .filter(obj => (obj.company != '') & (obj.job != '') & (obj.link != ''));
 
+    // select submitted rows and sort by date when submitted
     const sub_data = filtered_data.filter(x => x.sub == "TRUE").sort((a, b) => {
         const [dayA, monthA] = a.app.split("/").map(Number);
         const [dayB, monthB] = b.app.split("/").map(Number);
         return new Date(2024, monthA - 1, dayA) - new Date(2024, monthB - 1, dayB);
     });
+    // select todo rows and sort by date when added
     const todo_data = filtered_data.filter(x => x.todo == "TRUE").sort((a, b) => {
-        const [dayA, monthA] = a.todo.split("/").map(Number);
-        const [dayB, monthB] = b.todo.split("/").map(Number);
+        const [dayA, monthA] = a.add.split("/").map(Number);
+        const [dayB, monthB] = b.add.split("/").map(Number);
         return new Date(2024, monthB - 1, dayB) - new Date(2024, monthA - 1, dayA);
     });
+    // select dead rows
     const dead_data = filtered_data.filter(x => x.dead == "TRUE");
 
     return [...sub_data, ...todo_data, ...dead_data];
@@ -92,8 +88,8 @@ function sortValues(data){
 
 // Function to add a row to the google sheet
 async function addRow(data, link, company, position, location) {
+    
     let token = await getStoredToken();
-  
     if (!token) {
       token = await getAuthToken();
       storeToken(token);
