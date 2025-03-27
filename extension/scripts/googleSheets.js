@@ -1,3 +1,4 @@
+const headers = ["link", "company", "prio", "job", "sub", "dead", "todo", "app", "add", "apllication plateform", "location", "note"];
 
 // Function to get the authentication token
 function getAuthToken() {
@@ -13,8 +14,8 @@ function getAuthToken() {
 };
 
 // Function to get the data from the google sheet
-async function fetchData() {
-    console.log("fetchData");
+async function fetchData(spreadsheetId, sheetId, range, url) {
+    console.log("fetchData"); 
     let token = await getStoredToken();
   
     if (!token) {
@@ -23,23 +24,19 @@ async function fetchData() {
         storeToken(token);
     }
 
-    const spreadsheetId = "1OeHySMPQ_8ny9XwoGzUA7m2lrDREE0IYolxbc1FxNqk";
-    const sheetId = "crash_test";
-    const range = "!A:L";
-    const url = "https://sheets.googleapis.com/v4/spreadsheets/"
-    
-    let init = {
-        method: 'GET',
-        headers: {
-            Authorization: 'Bearer ' + token,
-        },
-    };
+    // API call
     const response = await fetch(
         url+spreadsheetId+"/values/"+sheetId+range,
-        init
+        {
+            method: 'GET',
+            headers: {
+                Authorization: 'Bearer ' + token,
+            },
+        }
     );
     
     const res = await response.json();
+    // if error 401 generate token again
     if(res.error?.code == 401 && res.error?.status == "UNAUTHENTICATED"){
         token = await getAuthToken();
         storeToken(token);
@@ -55,7 +52,7 @@ async function fetchData() {
 
 // Function to filter and sort the objects 
 function sortValues(data){
-    let headers = ["link", "company", "prio", "job", "sub", "dead", "todo", "app", "add", "apllication plateform", "location", "note"]
+    
     // check if first line is header
     let rows  = data[0][0] == "link" ? data.slice(1) : data;
 
@@ -87,43 +84,39 @@ function sortValues(data){
 }
 
 // Function to add a row to the google sheet
-async function addRow(data, link, company, position, location) {
-    
+async function addRow(data, new_row, spreadsheetId, sheetId, range, url) {
+
     let token = await getStoredToken();
     if (!token) {
       token = await getAuthToken();
       storeToken(token);
     }
 
+    // Create new row
     const today = new Date();
     const today_date = `${today.getDate()}/${today.getMonth() + 1}`;    
-    data.push([link, company, "", position, "FALSE", "FALSE", "TRUE", "", today_date, "", location, ""]);
+    data.push([new_row.link, new_row.company, "", new_row.position, "FALSE", "FALSE", "TRUE", "", today_date, "", new_row.location, ""]);
+    // Sort the data
     const new_data = sortValues(data);
     
-    const headers = ["link", "company", "prio", "job", "sub", "dead", "todo", "app", "add", "apllication plateform", "location", "note"]
     const formatted_data = new_data.map(obj => headers.map(header => obj[header] ? obj[header] : ""));
-
-    const spreadsheetId = "1OeHySMPQ_8ny9XwoGzUA7m2lrDREE0IYolxbc1FxNqk";
-    const sheetId = "crash_test";
-    const range = "!A:L";
-    const url = "https://sheets.googleapis.com/v4/spreadsheets/"
-    
     console.log([headers, ...formatted_data]);
+
     const body = {
         values: [headers, ...formatted_data],
     };
-    let init = {
-        method: 'PUT',
-        headers: {
-            Authorization: 'Bearer ' + token,
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify(body),
-    };
 
+    // API call
     const response = await fetch(
         url+spreadsheetId+"/values/"+sheetId+range+"?valueInputOption=USER_ENTERED",
-        init,
+        {
+            method: 'PUT',
+            headers: {
+                Authorization: 'Bearer ' + token,
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(body),
+        }
     );
     
     const result = await response.json();

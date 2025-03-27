@@ -4,6 +4,11 @@ const indeed = "indeed.com/";
 const linkedin = "www.linkedin.com/jobs/";
 const job_teaser = "www.jobteaser.com/en/job-offers";
 
+const spreadsheetId = "1OeHySMPQ_8ny9XwoGzUA7m2lrDREE0IYolxbc1FxNqk";
+const sheetId = "crash_test";
+const range = "!A:L";
+const url = "https://sheets.googleapis.com/v4/spreadsheets/"
+
 chrome.action.onClicked.addListener(async (tab) => {
 
     if(tab.url.includes(job_teaser)){
@@ -26,12 +31,9 @@ chrome.action.onClicked.addListener(async (tab) => {
 
 chrome.runtime.onMessage.addListener(async (request, sender, sendResponse) => {
     if (request.action === "send_scraped_data") {
-        let data = await fetchData();
-        addRow(data, request.data.link, request.data.company, request.data.position, request.data.location);
+        let data = await fetchData(spreadsheetId, sheetId, range, url);
+        addRow(data, request.data, spreadsheetId, sheetId, range, url);
     }
-    //     let result = await appendToSheet(request.data);
-    //     sendResponse({ success: true, result });
-    // }
 });
 
 
