@@ -1,4 +1,4 @@
-const headers = ["link", "company", "prio", "job", "sub", "dead", "todo", "app", "add", "apllication plateform", "location", "note"];
+const headers = ["link", "company", "prio", "position", "sub", "dead", "todo", "app", "add", "apllication plateform", "location", "note"];
 
 // Function to get the authentication token
 function getAuthToken() {
@@ -42,7 +42,12 @@ async function fetchData(spreadsheetId, sheetId, range, url) {
         storeToken(token);
         const response = await fetch(
             url+spreadsheetId+"/values/"+sheetId+range,
-            init
+            {
+                method: 'GET',
+                headers: {
+                    Authorization: 'Bearer ' + token,
+                },
+            }
         );
         const res = await response.json();
     }
@@ -63,7 +68,7 @@ function sortValues(data){
     // filter empty values
     const filtered_data = objects
     .filter(obj => Object.keys(obj).length > 0)
-    .filter(obj => (obj.company != '') & (obj.job != '') & (obj.link != ''));
+    .filter(obj => (obj.company != '') & (obj.position != '') & (obj.link != ''));
 
     // select submitted rows and sort by date when submitted
     const sub_data = filtered_data.filter(x => x.sub == "TRUE").sort((a, b) => {
@@ -92,15 +97,33 @@ async function addRow(data, new_row, spreadsheetId, sheetId, range, url) {
       storeToken(token);
     }
 
-    // Create new row
+    
+    if(new_row.link.startsWith("https://www.linkedin.com")){
+        let job_id;
+        if(new_row.link.startsWith("https://www.linkedin.com/jobs/view/")){
+            job_id = new_row.link.split("/jobs/view/")[1]?.split("/")[0] || null;
+        }else{
+            const urlObj = new URL(new_row.link);
+            job_id = urlObj.searchParams.get("currentJobId");
+        }
+        // We check if row is already in our data
+        const row_already_added = data.filter(x => 
+            x[0].includes(job_id) &&
+            x[0].includes("https://www.linkedin.com")
+        ).length;
+        if(row_already_added) return;
+    }
+    
+    // Create and add new row
     const today = new Date();
     const today_date = `${today.getDate()}/${today.getMonth() + 1}`;    
     data.push([new_row.link, new_row.company, "", new_row.position, "FALSE", "FALSE", "TRUE", "", today_date, "", new_row.location, ""]);
+    
     // Sort the data
     const new_data = sortValues(data);
     
     const formatted_data = new_data.map(obj => headers.map(header => obj[header] ? obj[header] : ""));
-    console.log([headers, ...formatted_data]);
+    // console.log([headers, ...formatted_data]);
 
     const body = {
         values: [headers, ...formatted_data],

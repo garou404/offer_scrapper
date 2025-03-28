@@ -5,9 +5,6 @@
     company = company.textContent.trim();
     let location = document.querySelector("div.t-black--light.mt2.job-details-jobs-unified-top-card__tertiary-description-container");
     location = location.querySelector("span").innerText.trim();
-    console.log(company);
-    console.log(location);
-    console.log(position);
     
     chrome.runtime.sendMessage({ 
         action: "send_scraped_data", 

@@ -8,7 +8,6 @@
     let company_a = document.querySelector("a.jobsearch-JobInfoHeader-companyNameLink");
     let company = company_a ? company_a.innerText : company_span ? company_span.innerText : null;
 
-    console.log(company, location, position);
     chrome.runtime.sendMessage({ 
         action: "send_scraped_data", 
         data: {"link": window.location.href, "company": company, "location": location, "position": position} 
