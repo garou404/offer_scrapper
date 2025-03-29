@@ -32,7 +32,11 @@ chrome.action.onClicked.addListener(async (tab) => {
 chrome.runtime.onMessage.addListener(async (request, sender, sendResponse) => {
     if (request.action === "send_scraped_data") {
         let data = await fetchData(spreadsheetId, sheetId, range, url);
-        addRow(data, request.data, spreadsheetId, sheetId, range, url);
+        if(data){
+            addRow(data, request.data, spreadsheetId, sheetId, range, url);
+        }else{
+            console.log("Failed to get data from google sheet");
+        }
     }
 });
 

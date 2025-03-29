@@ -15,7 +15,6 @@ function getAuthToken() {
 
 // Function to get the data from the google sheet
 async function fetchData(spreadsheetId, sheetId, range, url) {
-    console.log("fetchData"); 
     let token = await getStoredToken();
   
     if (!token) {
@@ -51,7 +50,7 @@ async function fetchData(spreadsheetId, sheetId, range, url) {
         );
         const res = await response.json();
     }
-    console.log(`GET request ${res}`);
+    console.log(res);
     return res.values;
 }
 
@@ -98,6 +97,7 @@ async function addRow(data, new_row, spreadsheetId, sheetId, range, url) {
     }
 
     
+    // Check is the new_row has already been added
     if(new_row.link.startsWith("https://www.linkedin.com")){
         let job_id;
         if(new_row.link.startsWith("https://www.linkedin.com/jobs/view/")){
@@ -106,12 +106,14 @@ async function addRow(data, new_row, spreadsheetId, sheetId, range, url) {
             const urlObj = new URL(new_row.link);
             job_id = urlObj.searchParams.get("currentJobId");
         }
-        // We check if row is already in our data
         const row_already_added = data.filter(x => 
             x[0].includes(job_id) &&
             x[0].includes("https://www.linkedin.com")
         ).length;
         if(row_already_added) return;
+    }
+    if(data.filter(x => x[0] == new_row.link).length > 0){
+        return;
     }
     
     // Create and add new row
