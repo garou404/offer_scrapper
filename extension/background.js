@@ -10,7 +10,6 @@ const range = "!A:L";
 const url = "https://sheets.googleapis.com/v4/spreadsheets/"
 
 chrome.action.onClicked.addListener(async (tab) => {
-
     if(tab.url.includes(job_teaser)){
         chrome.scripting.executeScript({
             target: { tabId: tab.id },

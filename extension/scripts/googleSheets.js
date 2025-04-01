@@ -131,21 +131,30 @@ async function addRow(data, new_row, spreadsheetId, sheetId, range, url) {
         values: [headers, ...formatted_data],
     };
 
-    // API call
-    const response = await fetch(
-        url+spreadsheetId+"/values/"+sheetId+range+"?valueInputOption=USER_ENTERED",
-        {
-            method: 'PUT',
-            headers: {
-                Authorization: 'Bearer ' + token,
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify(body),
-        }
-    );
+    // // API call
+    // const response = await fetch(
+    //     url+spreadsheetId+"/values/"+sheetId+range+"?valueInputOption=USER_ENTERED",
+    //     {
+    //         method: 'PUT',
+    //         headers: {
+    //             Authorization: 'Bearer ' + token,
+    //             "Content-Type": "application/json"
+    //         },
+    //         body: JSON.stringify(body),
+    //     }
+    // );
     
-    const result = await response.json();
-    console.log(result);
+    // const result = await response.json();
+    // alert(`offer ${new_row.position} from ${new_row.company} was added.`)
+    console.log("changes were made");
+    chrome.action.setPopup({popup: "scripts/popup.html"});
+    chrome.action.openPopup();
+    chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+        if (request.action === "getConfirmation") {
+            sendResponse({ message: "custom message: "+new_row.position });
+        }
+    });
+    // console.log(result);
 }
 
 
