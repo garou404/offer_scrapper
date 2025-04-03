@@ -130,8 +130,8 @@ async function addRow(data, new_row, spreadsheetId, sheetId, range, url) {
     const body = {
         values: [headers, ...formatted_data],
     };
-
-    // // API call
+    console.log("API CALL");
+    // API call
     // const response = await fetch(
     //     url+spreadsheetId+"/values/"+sheetId+range+"?valueInputOption=USER_ENTERED",
     //     {
@@ -145,18 +145,36 @@ async function addRow(data, new_row, spreadsheetId, sheetId, range, url) {
     // );
     
     // const result = await response.json();
-    // alert(`offer ${new_row.position} from ${new_row.company} was added.`)
-    console.log("changes were made");
+    const message = `Offer from ${new_row.company} was added.`;
+    // console.log("changes were made");
     chrome.action.setPopup({popup: "scripts/popup.html"});
+    // chrome.action.setPopup({popup: "scripts/aaaaaa"});
     chrome.action.openPopup();
+    // chrome.action.setPopup(null);
+    console.log("post popup opening");
+
     chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         if (request.action === "getConfirmation") {
-            sendResponse({ message: "custom message: "+new_row.position });
+            sendResponse({message: message});
         }
     });
-    // console.log(result);
+    
+    // openPopup(message);
 }
 
+// // Function to open a popup window manually
+// function openPopup(message) {
+//     let popupUrl = chrome.runtime.getURL("popup.html") + `?msg=${encodeURIComponent(message)}`;
+
+//     chrome.windows.create({
+//         url: popupUrl,
+//         type: "popup",
+//         width: 400,
+//         height: 200,
+//         top: 100,
+//         left: 100
+//     });
+// }
 
 // Function to store token
 function storeToken(token) {

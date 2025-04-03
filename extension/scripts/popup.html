@@ -1,19 +1,7 @@
 <html>
  <head>
    <title>Water Popup</title>
-   <script src="popup.js" defer>
-    document.addEventListener("DOMContentLoaded", function () {
-      // Request the confirmation message from the background script
-      chrome.runtime.sendMessage({ action: "getConfirmation" }, function(response) {
-          if (response) {
-              document.getElementById("confirmationText").innerText = 
-                  `✔️ ${response.message} at ${response.time}`;
-          } else {
-              document.getElementById("confirmationText").innerText = "❌ Error fetching confirmation.";
-          }
-      });
-  });
-   </script>
+   <script src="popup.js"></script>
  </head>
  <body>
     <p id="confirmationText">Loading...</p>
