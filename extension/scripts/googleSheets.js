@@ -145,8 +145,17 @@ async function addRow(data, new_row, spreadsheetId, sheetId, range, url) {
     // );
     
     // const result = await response.json();
-    const message = `Offer from ${new_row.company} was added.`;
+    let message = `Offer from ${new_row.company} was added.`;
     // console.log("changes were made");
+    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+        if (tabs.length === 0) return;
+      
+        const tabId = tabs[0].id;
+      
+        chrome.action.getPopup({ tabId }, (popupUrl) => {
+          console.log("Popup URL for this tab:", popupUrl);
+        });
+      });
     chrome.action.setPopup({popup: "scripts/popup.html"});
     // chrome.action.setPopup({popup: "scripts/aaaaaa"});
     chrome.action.openPopup();
@@ -155,9 +164,21 @@ async function addRow(data, new_row, spreadsheetId, sheetId, range, url) {
 
     chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         if (request.action === "getConfirmation") {
+            console.log("We send message");
+            console.log(message); // <-- good message sent
             sendResponse({message: message});
+            console.log("message sent");
         }
     });
+    chrome.action.setPopup({popup: ""});
+
+
+    // chrome.runtime.sendMessage({ 
+    //     action: "update_popup_msg", 
+    //     data: {"msg": message} 
+    // }, response => {
+    //     console.log("response message sent to popup", response);
+    // });
     
     // openPopup(message);
 }
