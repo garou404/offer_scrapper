@@ -1,23 +1,15 @@
-console.log("POP UP");
-
-document.addEventListener("DOMContentLoaded", function () {
-    // Request the confirmation message from the background script
-    chrome.runtime.sendMessage({ action: "getConfirmation" }, function(response) {
-        console.log("SOMETHONG IS HAPPENING");
-        if (response) {
-            console.log("wawawawa");
-            console.log(response.message); // <-- here first message received always
-            document.getElementById("confirmationText").innerText = 
-                `${response.message}`;
-        } else {
-            document.getElementById("confirmationText").innerText = "X Error fetching confirmation.";
-        }
-    });
+document.addEventListener("DOMContentLoaded", async () => {
+        const [tab] = await chrome.tabs.query({active: true, lastFocusedWindow: true});
+        const test = await chrome.runtime.sendMessage({ action: "trigger_script", tab_id: tab.id, url: tab.url});
+        setTimeout(() => {
+            chrome.runtime.sendMessage({ action: "get_result" }, (response) => {
+                console.log("Popup got result:", response);
+                const el = document.getElementById("result");
+                if (response) {
+                    el.textContent = response;
+                } else {
+                    el.textContent = "No result received.";
+                }
+            });
+        }, 4000);
 });
-
-// chrome.runtime.onMessage.addListener(async (request, sender, sendResponse) => {
-//     if (request.action === "update_popup_msg") {
-//         console.log("message received");
-//         console.log(request.data);
-//     }
-// });

@@ -34,7 +34,7 @@ async function fetchData(spreadsheetId, sheetId, range, url) {
         }
     );
     
-    const res = await response.json();
+    let res = await response.json();
     // if error 401 generate token again
     if(res.error?.code == 401 && res.error?.status == "UNAUTHENTICATED"){
         token = await getAuthToken();
@@ -48,7 +48,7 @@ async function fetchData(spreadsheetId, sheetId, range, url) {
                 },
             }
         );
-        const res = await response.json();
+        res = await response.json();
     }
     console.log(res);
     return res.values;
@@ -132,70 +132,24 @@ async function addRow(data, new_row, spreadsheetId, sheetId, range, url) {
     };
     console.log("API CALL");
     // API call
-    // const response = await fetch(
-    //     url+spreadsheetId+"/values/"+sheetId+range+"?valueInputOption=USER_ENTERED",
-    //     {
-    //         method: 'PUT',
-    //         headers: {
-    //             Authorization: 'Bearer ' + token,
-    //             "Content-Type": "application/json"
-    //         },
-    //         body: JSON.stringify(body),
-    //     }
-    // );
-    
-    // const result = await response.json();
-    let message = `Offer from ${new_row.company} was added.`;
-    // console.log("changes were made");
-    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-        if (tabs.length === 0) return;
-      
-        const tabId = tabs[0].id;
-      
-        chrome.action.getPopup({ tabId }, (popupUrl) => {
-          console.log("Popup URL for this tab:", popupUrl);
-        });
-      });
-    chrome.action.setPopup({popup: "scripts/popup.html"});
-    // chrome.action.setPopup({popup: "scripts/aaaaaa"});
-    chrome.action.openPopup();
-    // chrome.action.setPopup(null);
-    console.log("post popup opening");
-
-    chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-        if (request.action === "getConfirmation") {
-            console.log("We send message");
-            console.log(message); // <-- good message sent
-            sendResponse({message: message});
-            console.log("message sent");
+    const response = await fetch(
+        url+spreadsheetId+"/values/"+sheetId+range+"?valueInputOption=USER_ENTERED",
+        {
+            method: 'PUT',
+            headers: {
+                Authorization: 'Bearer ' + token,
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(body),
         }
-    });
-    chrome.action.setPopup({popup: ""});
-
-
-    // chrome.runtime.sendMessage({ 
-    //     action: "update_popup_msg", 
-    //     data: {"msg": message} 
-    // }, response => {
-    //     console.log("response message sent to popup", response);
-    // });
+    );
     
-    // openPopup(message);
+    const result = await response.json();
+    let message = `Offer from ${new_row.company} was added.`;
+    return message;
 }
 
-// // Function to open a popup window manually
-// function openPopup(message) {
-//     let popupUrl = chrome.runtime.getURL("popup.html") + `?msg=${encodeURIComponent(message)}`;
 
-//     chrome.windows.create({
-//         url: popupUrl,
-//         type: "popup",
-//         width: 400,
-//         height: 200,
-//         top: 100,
-//         left: 100
-//     });
-// }
 
 // Function to store token
 function storeToken(token) {
