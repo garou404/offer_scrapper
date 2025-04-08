@@ -70,13 +70,13 @@ function sortValues(data){
     .filter(obj => (obj.company != '') & (obj.position != '') & (obj.link != ''));
 
     // select submitted rows and sort by date when submitted
-    const sub_data = filtered_data.filter(x => x.sub == "TRUE").sort((a, b) => {
+    const sub_data = filtered_data.filter(x => x.sub == "TRUE" && x.dead == "FALSE").sort((a, b) => {
         const [dayA, monthA] = a.app.split("/").map(Number);
         const [dayB, monthB] = b.app.split("/").map(Number);
         return new Date(2024, monthA - 1, dayA) - new Date(2024, monthB - 1, dayB);
     });
     // select todo rows and sort by date when added
-    const todo_data = filtered_data.filter(x => x.todo == "TRUE").sort((a, b) => {
+    const todo_data = filtered_data.filter(x => x.todo == "TRUE" && x.dead == "FALSE").sort((a, b) => {
         const [dayA, monthA] = a.add.split("/").map(Number);
         const [dayB, monthB] = b.add.split("/").map(Number);
         return new Date(2024, monthB - 1, dayB) - new Date(2024, monthA - 1, dayA);

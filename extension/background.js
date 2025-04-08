@@ -5,7 +5,7 @@ const linkedin = "www.linkedin.com/jobs/";
 const job_teaser = "www.jobteaser.com/en/job-offers";
 
 const spreadsheetId = "1OeHySMPQ_8ny9XwoGzUA7m2lrDREE0IYolxbc1FxNqk";
-const sheetId = "crash_test2";
+const sheetId = "crash_test";
 const range = "!A:L";
 const url = "https://sheets.googleapis.com/v4/spreadsheets/"
 let lastResult = null;
